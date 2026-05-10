@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Négatif d'Image - Original Couleur / Gris / Négatif</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: clamp(10px, 3vw, 20px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: clamp(15px, 4vw, 20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: clamp(20px, 5vw, 30px);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: clamp(1.3rem, 6vw, 2.5rem);
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .header p {
+            font-size: clamp(0.85rem, 4vw, 1.1rem);
+            opacity: 0.9;
+        }
+
+        .formula {
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: clamp(8px, 2vw, 10px) clamp(15px, 4vw, 20px);
+            border-radius: 10px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: clamp(0.9rem, 4vw, 1.2em);
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .content {
+            padding: clamp(15px, 4vw, 30px);
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: clamp(25px, 6vw, 40px);
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-area:active {
+            transform: scale(0.98);
+        }
+
+        .upload-icon {
+            font-size: clamp(36px, 10vw, 48px);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: clamp(1rem, 4.5vw, 1.2em);
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: clamp(0.75rem, 3.5vw, 0.9em);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+            gap: clamp(15px, 4vw, 25px);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: clamp(15px, 4vw, 20px);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card:active {
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: clamp(1.1rem, 4.5vw, 1.3em);
+        }
+
+        .card .formula-badge {
+            background: #f0f2ff;
+            padding: 5px 10px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: clamp(0.75rem, 3vw, 0.9em);
+            color: #764ba2;
+            word-break: break-word;
+        }
+
+        .card canvas {
+            width: 100%;
+            height: auto;
+            max-height: clamp(200px, 40vh, 350px);
+            object-fit: contain;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .image-info {
+            margin-top: 15px;
+            padding: clamp(8px, 3vw, 10px);
+            background: #f8f9ff;
+            border-radius: 8px;
+            font-size: clamp(0.75rem, 3vw, 0.85em);
+            color: #555;
+            word-break: break-word;
+        }
+
+        .button-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: clamp(6px, 2.5vw, 8px) clamp(12px, 4vw, 16px);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.75rem, 3vw, 0.85em);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 0 1 auto;
+            min-width: 90px;
+            touch-action: manipulation;
+        }
+
+        /* Version mobile : boutons plus grands pour le tactile */
+        @media (max-width: 480px) {
+            .btn {
+                flex: 1;
+                min-width: auto;
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Pour les très petits écrans */
+        @media (max-width: 360px) {
+            .btn {
+                padding: 8px 10px;
+                font-size: 0.75rem;
+            }
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover, .btn-success:active {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover, .btn-info:active {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: clamp(12px, 4vw, 15px);
+            background: #e8ebff;
+            border-radius: 10px;
+            text-align: center;
+            color: #667eea;
+            font-size: clamp(0.8rem, 3.5vw, 0.9rem);
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: clamp(0.9rem, 4vw, 1.1em);
+        }
+
+        /* Mode paysage pour mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .preview-section {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .card canvas {
+                max-height: 180px;
+            }
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Tablettes */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .preview-section {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            
+            .card canvas {
+                max-height: 280px;
+            }
+        }
+
+        /* Grands écrans */
+        @media (min-width: 1400px) {
+            body {
+                padding: 30px;
+            }
+            
+            .container {
+                max-width: 1600px;
+            }
+            
+            .card canvas {
+                max-height: 450px;
+            }
+        }
+
+        /* Support du clavier (accessibilité) */
+        .btn:focus-visible,
+        .upload-area:focus-visible {
+            outline: 3px solid #764ba2;
+            outline-offset: 3px;
+        }
+
+        /* Animation de chargement */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .preview-section {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .loading-message {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Message d'erreur responsive */
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: clamp(10px, 3vw, 15px);
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: clamp(0.8rem, 3.5vw, 0.9rem);
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        /* Impression */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .upload-area,
+            .button-group,
+            .info {
+                display: none;
+            }
+            
+            .preview-section {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        /* Mode sombre (basé sur les préférences système) */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+            
+            .container {
+                background: #2c2c3e;
+            }
+            
+            .card,
+            .upload-area {
+                background: #3a3a4e;
+            }
+            
+            .card h3 {
+                color: #a8b3ff;
+            }
+            
+            .info {
+                background: #4a4a5e;
+                color: #a8b3ff;
+            }
+            
+            .upload-text {
+                color: #a8b3ff;
+            }
+            
+            .upload-subtext {
+                color: #bbb;
+            }
+            
+            .image-info {
+                background: #2c2c3e;
+                color: #ddd;
+            }
+            
+            .formula-badge {
+                background: #2c2c3e;
+                color: #a8b3ff;
+            }
+        }
+
+        /* Écrans tactiles : désactiver le hover qui peut être gênant */
+        @media (hover: none) {
+            .card:hover {
+                transform: none;
+            }
+            
+            .upload-area:hover {
+                transform: none;
+            }
+            
+            .btn:hover {
+                transform: none;
+            }
+        }
+
+        /* Support des écrans à haute densité */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .card canvas {
+                border-width: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Négatif d'Image</h1>
+            <p>Originale Couleur → Niveaux de Gris → Négatif (S = 255 - I)</p>
+            <div class="formula">
+                Négatif(x,y) = 255 - Pixel Gris(x,y)
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="upload-area" id="uploadArea" tabindex="0" role="button" aria-label="Zone de téléchargement d'image">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Cliquez ou glissez-déposez une image ici</div>
+                <div class="upload-subtext">Formats supportés : PNG, JPG, JPEG, GIF, BMP, WEBP</div>
+                <div class="upload-subtext" style="margin-top: 5px; color: #764ba2;">⬇️ Taille maximale : 50MB</div>
+                <input type="file" id="fileInput" accept="image/*" aria-label="Sélectionner un fichier image">
+            </div>
+
+            <div id="loadingMessage" class="loading-message" style="display: none;">
+                ⏳ Chargement et traitement de l'image...
+            </div>
+
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <!-- Image Originale Couleur -->
+                <div class="card">
+                    <h3>🖼️ Image Originale (Couleur)</h3>
+                    <div class="formula-badge">Image source RGB</div>
+                    <canvas id="originalCouleurCanvas" aria-label="Image originale en couleur"></canvas>
+                    <div class="image-info" id="originalCouleurInfo"></div>
+                    <div class="button-group">
+                        <button class="btn btn-success" onclick="sauvegarderImage('couleur', 'png')" aria-label="Sauvegarder en PNG">💾 PNG</button>
+                        <button class="btn btn-info" onclick="sauvegarderImage('couleur', 'jpeg')" aria-label="Sauvegarder en JPEG">💾 JPEG</button>
+                    </div>
+                </div>
+
+                <!-- Image en Niveaux de Gris -->
+                <div class="card">
+                    <h3>⚫ Niveaux de Gris</h3>
+                    <div class="formula-badge">I = 0.299×R + 0.587×V + 0.114×B</div>
+                    <canvas id="grisCanvas" aria-label="Image en niveaux de gris"></canvas>
+                    <div class="image-info" id="grisInfo"></div>
+                    <div class="button-group">
+                        <button class="btn btn-success" onclick="sauvegarderImage('gris', 'png')" aria-label="Sauvegarder en PNG">💾 PNG</button>
+                        <button class="btn btn-info" onclick="sauvegarderImage('gris', 'jpeg')" aria-label="Sauvegarder en JPEG">💾 JPEG</button>
+                    </div>
+                </div>
+
+                <!-- Image Négative -->
+                <div class="card">
+                    <h3>🎭 Image Négative</h3>
+                    <div class="formula-badge">Négatif = 255 - I(x,y)</div>
+                    <canvas id="negatifCanvas" aria-label="Image négative"></canvas>
+                    <div class="image-info" id="negatifInfo"></div>
+                    <div class="button-group">
+                        <button class="btn btn-success" onclick="sauvegarderImage('negatif', 'png')" aria-label="Sauvegarder en PNG">💾 PNG</button>
+                        <button class="btn btn-info" onclick="sauvegarderImage('negatif', 'jpeg')" aria-label="Sauvegarder en JPEG">💾 JPEG</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info">
+                💡 <strong>Explication :</strong><br>
+                1️⃣ L'image couleur originale est affichée telle quelle.<br>
+                2️⃣ Conversion en niveaux de gris : I = 0.299×R + 0.587×V + 0.114×B<br>
+                3️⃣ Négatif : N = 255 - I (inversion des intensités)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let imageOriginale = null;
+        let imageDataCouleur = null;
+        let imageDataGris = null;
+        let imageDataNegatif = null;
+
+        // Éléments DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewSection = document.getElementById('previewSection');
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        // Gestion du clic
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Support du clavier (accessibilité)
+        uploadArea.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        });
+
+        // Glisser-déposer
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                chargerImage(file);
+            } else {
+                afficherErreur('Veuillez déposer un fichier image valide !');
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                chargerImage(file);
+            }
+        });
+
+        function afficherErreur(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            const existingError = document.querySelector('.error-message');
+            if (existingError) existingError.remove();
+            
+            uploadArea.parentNode.insertBefore(errorDiv, uploadArea.nextSibling);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 4000);
+        }
+
+        function chargerImage(file) {
+            if (file.size > 50 * 1024 * 1024) {
+                afficherErreur('L\'image est trop volumineuse (max 50MB)');
+                return;
+            }
+
+            loadingMessage.style.display = 'block';
+            previewSection.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    imageOriginale = img;
+                    traiterImage();
+                    loadingMessage.style.display = 'none';
+                    previewSection.style.display = 'grid';
+                    
+                    // Scroll fluide vers les résultats sur mobile
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                            previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                    }
+                };
+                img.onerror = () => {
+                    loadingMessage.style.display = 'none';
+                    afficherErreur('Erreur : Impossible de charger l\'image. Format non supporté ou fichier corrompu.');
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = () => {
+                loadingMessage.style.display = 'none';
+                afficherErreur('Erreur lors de la lecture du fichier.');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function traiterImage() {
+            if (!imageOriginale) return;
+
+            const w = imageOriginale.width;
+            const h = imageOriginale.height;
+
+            // ========== 1. IMAGE ORIGINALE COULEUR ==========
+            const couleurCanvas = document.getElementById('originalCouleurCanvas');
+            couleurCanvas.width = w;
+            couleurCanvas.height = h;
+            const ctxCouleur = couleurCanvas.getContext('2d');
+            ctxCouleur.drawImage(imageOriginale, 0, 0);
+            imageDataCouleur = ctxCouleur.getImageData(0, 0, w, h);
+
+            // ========== 2. CONVERSION EN NIVEAUX DE GRIS ==========
+            const grisCanvas = document.getElementById('grisCanvas');
+            grisCanvas.width = w;
+            grisCanvas.height = h;
+            const ctxGris = grisCanvas.getContext('2d');
+            imageDataGris = ctxGris.createImageData(w, h);
+
+            for (let i = 0; i < imageDataCouleur.data.length; i += 4) {
+                const r = imageDataCouleur.data[i];
+                const g = imageDataCouleur.data[i + 1];
+                const b = imageDataCouleur.data[i + 2];
+                // Formule de luminance (perception humaine)
+                const gris = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                
+                imageDataGris.data[i] = gris;
+                imageDataGris.data[i + 1] = gris;
+                imageDataGris.data[i + 2] = gris;
+                imageDataGris.data[i + 3] = imageDataCouleur.data[i + 3];
+            }
+            ctxGris.putImageData(imageDataGris, 0, 0);
+
+            // ========== 3. CALCUL DU NÉGATIF : S = 255 - I ==========
+            const negatifCanvas = document.getElementById('negatifCanvas');
+            negatifCanvas.width = w;
+            negatifCanvas.height = h;
+            const ctxNegatif = negatifCanvas.getContext('2d');
+            imageDataNegatif = ctxNegatif.createImageData(w, h);
+
+            for (let i = 0; i < imageDataGris.data.length; i += 4) {
+                const gris = imageDataGris.data[i];
+                const negatif = 255 - gris;
+                
+                imageDataNegatif.data[i] = negatif;
+                imageDataNegatif.data[i + 1] = negatif;
+                imageDataNegatif.data[i + 2] = negatif;
+                imageDataNegatif.data[i + 3] = imageDataGris.data[i + 3];
+            }
+            ctxNegatif.putImageData(imageDataNegatif, 0, 0);
+
+            // Afficher les informations
+            afficherInformations();
+
+            // Ajuster l'affichage
+            ajusterTailleCanvas();
+        }
+
+        function afficherInformations() {
+            // Informations image couleur
+            const couleurInfo = document.getElementById('originalCouleurInfo');
+            couleurInfo.innerHTML = `
+                📐 Dimensions: ${imageDataCouleur.width} x ${imageDataCouleur.height}<br>
+                🎨 Image RGB (Rouge, Vert, Bleu)
+            `;
+
+            // Statistiques de l'image en niveaux de gris
+            let sommeGris = 0;
+            let minGris = 255, maxGris = 0;
+            for (let i = 0; i < imageDataGris.data.length; i += 4) {
+                const val = imageDataGris.data[i];
+                sommeGris += val;
+                if (val < minGris) minGris = val;
+                if (val > maxGris) maxGris = val;
+            }
+            const moyenneGris = sommeGris / (imageDataGris.data.length / 4);
+
+            const grisInfo = document.getElementById('grisInfo');
+            grisInfo.innerHTML = `
+                📐 Dimensions: ${imageDataGris.width} x ${imageDataGris.height}<br>
+                📊 Intensités: min=${minGris}, max=${maxGris}, moyenne=${moyenneGris.toFixed(1)}
+            `;
+
+            // Statistiques du négatif
+            let sommeNeg = 0;
+            let minNeg = 255, maxNeg = 0;
+            for (let i = 0; i < imageDataNegatif.data.length; i += 4) {
+                const val = imageDataNegatif.data[i];
+                sommeNeg += val;
+                if (val < minNeg) minNeg = val;
+                if (val > maxNeg) maxNeg = val;
+            }
+            const moyenneNeg = sommeNeg / (imageDataNegatif.data.length / 4);
+
+            const negatifInfo = document.getElementById('negatifInfo');
+            negatifInfo.innerHTML = `
+                📐 Dimensions: ${imageDataNegatif.width} x ${imageDataNegatif.height}<br>
+                📊 Intensités: min=${minNeg}, max=${maxNeg}, moyenne=${moyenneNeg.toFixed(1)}<br>
+                🔄 Vérification: ${minGris} → ${255 - minGris} (négatif)
+            `;
+        }
+
+        function sauvegarderImage(type, format) {
+            let canvas;
+            let nomFichier;
+            
+            switch(type) {
+                case 'couleur':
+                    canvas = document.getElementById('originalCouleurCanvas');
+                    nomFichier = `image_originale_couleur_${Date.now()}`;
+                    break;
+                case 'gris':
+                    canvas = document.getElementById('grisCanvas');
+                    nomFichier = `image_niveaux_gris_${Date.now()}`;
+                    break;
+                case 'negatif':
+                    canvas = document.getElementById('negatifCanvas');
+                    nomFichier = `image_negative_${Date.now()}`;
+                    break;
+                default:
+                    return;
+            }
+            
+            try {
+                const lien = document.createElement('a');
+                if (format === 'png') {
+                    lien.download = `${nomFichier}.png`;
+                    lien.href = canvas.toDataURL('image/png');
+                } else {
+                    lien.download = `${nomFichier}.jpeg`;
+                    lien.href = canvas.toDataURL('image/jpeg', 0.95);
+                }
+                lien.click();
+                
+                // Feedback visuel sur mobile
+                if (window.innerWidth <= 768) {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ Sauvegardé !';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 1000);
+                }
+            } catch (error) {
+                afficherErreur('Erreur lors de la sauvegarde');
+            }
+        }
+
+        function ajusterTailleCanvas() {
+            const maxWidth = window.innerWidth <= 480 ? 280 : (window.innerWidth <= 768 ? 320 : 400);
+            const maxHeight = window.innerWidth <= 480 ? 280 : (window.innerWidth <= 768 ? 320 : 400);
+            
+            const canvases = ['originalCouleurCanvas', 'grisCanvas', 'negatifCanvas'];
+            canvases.forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas && canvas.width > 0) {
+                    const ratio = Math.min(maxWidth / canvas.width, maxHeight / canvas.height);
+                    canvas.style.width = `${canvas.width * ratio}px`;
+                    canvas.style.height = `${canvas.height * ratio}px`;
+                }
+            });
+        }
+
+        // Redimensionnement responsive avec debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => ajusterTailleCanvas(), 250);
+        });
+
+        // Ajustement initial
+        window.addEventListener('load', () => {
+            ajusterTailleCanvas();
+        });
+
+        // Détection des appareils tactiles pour optimisations
+        if ('ontouchstart' in window) {
+            document.body.classList.add('touch-device');
+        }
+    </script>
+</body>
+</html>
